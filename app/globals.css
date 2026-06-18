@@ -314,7 +314,7 @@ body {
   font-size: 13px;
 }
 
-.tool-call.tool-error {
+.tool-call.state-error {
   border-color: #e5484d;
 }
 
@@ -324,38 +324,82 @@ body {
   gap: 8px;
 }
 
+.tool-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--border-strong);
+  color: var(--muted);
+  font-size: 12px;
+  flex: none;
+}
+
+.tool-call.state-done .tool-badge {
+  background: rgba(57, 161, 91, 0.16);
+  color: #2f9e57;
+}
+
+.tool-call.state-error .tool-badge {
+  background: rgba(229, 72, 77, 0.16);
+  color: #e5484d;
+}
+
 .tool-name {
   font-weight: 600;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12.5px;
 }
 
-.tool-state {
-  font-size: 12px;
+.tool-pill {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
 }
 
-.tool-status {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 12px;
+.tool-call.state-done .tool-pill {
+  color: #2f9e57;
+}
+
+.tool-call.state-error .tool-pill {
+  color: #e5484d;
 }
 
 .tool-detail > summary {
   cursor: pointer;
   color: var(--muted);
   font-size: 12px;
+  margin-top: 8px;
+}
+
+.tool-block {
   margin-top: 6px;
 }
 
-.tool-args,
-.tool-result {
-  margin: 6px 0 0;
+.tool-block-label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.tool-code {
+  margin: 0;
   padding: 8px 10px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 12px;
-  overflow-x: auto;
+  max-height: 220px;
+  overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -458,4 +502,20 @@ body {
 .composer button:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* Square icon send button */
+.composer .send-btn {
+  flex: none;
+  width: 46px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.composer .send-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
 }

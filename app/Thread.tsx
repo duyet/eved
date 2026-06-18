@@ -19,10 +19,20 @@ const SUGGESTIONS = [
 const GLIDE = { type: "spring", stiffness: 210, damping: 30, mass: 0.9 } as const;
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-// Stagger the suggestion pills in after the hero settles.
+// Cascade the empty state: the title shows first, then the subtitle.
+const heroVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+};
+const heroItem = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT } },
+};
+
+// Suggestion pills come in AFTER the hero has appeared ("Chat with eved" first).
 const listVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.12 } },
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.32 } },
 };
 const pillVariants = {
   hidden: { opacity: 0, y: 8, scale: 0.96 },
@@ -48,10 +58,12 @@ function Reasoning({ text, status }: ReasoningMessagePartProps) {
   );
 }
 
-// One tool call, with live status: running spinner, then result or error.
+// One tool call, as a compact card: an icon badge + name + status pill, with
+// height-capped, labeled input/output behind a disclosure (results can be large).
 function ToolCall({ toolName, args, result, isError, status }: ToolCallMessagePartProps) {
   const running = status?.type === "running" || status?.type === "requires-action";
-  const stateIcon = isError ? "⚠️" : running ? "" : "✓";
+  const state = running ? "running" : isError ? "error" : "done";
+  const label = running ? "Running" : isError ? "Failed" : "Done";
   const argsText = args && Object.keys(args).length > 0 ? JSON.stringify(args, null, 2) : null;
   const resultText =
     result === undefined
@@ -60,17 +72,29 @@ function ToolCall({ toolName, args, result, isError, status }: ToolCallMessagePa
         ? result
         : JSON.stringify(result, null, 2);
   return (
-    <div className={`tool-call${isError ? " tool-error" : ""}`}>
+    <div className={`tool-call state-${state}`}>
       <div className="tool-head">
-        {running ? <span className="spinner" aria-hidden /> : <span className="tool-state">{stateIcon}</span>}
+        <span className="tool-badge" aria-hidden>
+          {running ? <span className="spinner" /> : isError ? "⚠" : "✓"}
+        </span>
         <span className="tool-name">{toolName}</span>
-        <span className="tool-status">{running ? "running…" : isError ? "failed" : "done"}</span>
+        <span className="tool-pill">{label}</span>
       </div>
       {(argsText || resultText) && (
         <details className="tool-detail">
-          <summary>details</summary>
-          {argsText && <pre className="tool-args">{argsText}</pre>}
-          {resultText && <pre className="tool-result">{resultText}</pre>}
+          <summary>Details</summary>
+          {argsText && (
+            <div className="tool-block">
+              <span className="tool-block-label">Input</span>
+              <pre className="tool-code">{argsText}</pre>
+            </div>
+          )}
+          {resultText && (
+            <div className="tool-block">
+              <span className="tool-block-label">Output</span>
+              <pre className="tool-code">{resultText}</pre>
+            </div>
+          )}
         </details>
       )}
     </div>
@@ -124,21 +148,28 @@ export function Thread() {
               <motion.div
                 key="hero"
                 className="welcome"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT } }}
+                variants={heroVariants}
+                initial="hidden"
+                animate="show"
                 exit={{ opacity: 0, y: -8, transition: { duration: 0.2, ease: "easeIn" } }}
               >
-                <div className="welcome-title">Chat with eved</div>
-                <div className="welcome-sub">
+                <motion.div className="welcome-title" variants={heroItem}>
+                  Chat with eved
+                </motion.div>
+                <motion.div className="welcome-sub" variants={heroItem}>
                   Duyet&apos;s assistant — ask about him, his work, or how to work with him.
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
 
           <ComposerPrimitive.Root className="composer">
             <ComposerPrimitive.Input placeholder="Message eved…" rows={1} autoFocus />
-            <ComposerPrimitive.Send>Send</ComposerPrimitive.Send>
+            <ComposerPrimitive.Send className="send-btn" aria-label="Send message">
+              <svg className="send-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor" />
+              </svg>
+            </ComposerPrimitive.Send>
           </ComposerPrimitive.Root>
 
           <AnimatePresence>
