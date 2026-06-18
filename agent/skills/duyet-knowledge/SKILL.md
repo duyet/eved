@@ -8,6 +8,7 @@ description: Background on Duyet (duyet.net) — who he is, his expertise, his p
 AI-agent infrastructure, and ships most of his work alongside coding agents.
 
 ## Links
+
 - **Site:** https://duyet.net
 - **Blog:** https://blog.duyet.net
 - **CV / résumé:** https://cv.duyet.net
@@ -16,12 +17,14 @@ AI-agent infrastructure, and ships most of his work alongside coding agents.
 - **X (Twitter):** https://x.com/_duyet — best for a quick, direct reply
 
 ## Expertise
+
 Data engineering (ClickHouse, Spark, Airflow, BigQuery, Kafka, dbt), AI/ML systems
 (agent frameworks, model routing, evals), cloud infrastructure (Kubernetes, Terraform,
 AWS/GCP, Cloudflare Workers), backends (Python, Rust, TypeScript), and frontends
 (React, TanStack, shadcn/ui, Tailwind).
 
 ## Notable projects
+
 - **clickhouse-monitoring** — ClickHouse cluster monitoring UI built from system tables.
 - **AnyRouter** — one API for every AI model (multi-provider LLM routing).
 - **grant-rs** — GitOps-style Redshift/Postgres privilege management, in Rust.
@@ -29,6 +32,7 @@ AWS/GCP, Cloudflare Workers), backends (Python, Rust, TypeScript), and frontends
 - **claude-plugins** — Claude Code plugins and extensions.
 
 ## Contact
+
 - Use the **duyet** connection tools (`say_hi`, `send_message`, `hire_me`) to reach Duyet.
 - For a fast, direct reply, point people to his X: https://x.com/_duyet.
 

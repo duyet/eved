@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ThreadPrimitive,
-  MessagePrimitive,
-  ComposerPrimitive,
-} from "@assistant-ui/react";
+import { ThreadPrimitive, MessagePrimitive, ComposerPrimitive } from "@assistant-ui/react";
 
 export function Thread() {
   return (
@@ -12,8 +8,8 @@ export function Thread() {
       <ThreadPrimitive.Viewport className="thread">
         <ThreadPrimitive.Empty>
           <div className="empty">
-            Hi — I&apos;m <strong>eved</strong>, Duyet&apos;s assistant. Ask about Duyet,
-            his projects, or anything on the web. Want to work with him? Just say so.
+            Hi — I&apos;m <strong>eved</strong>, Duyet&apos;s assistant. Ask about Duyet, his
+            projects, or anything on the web. Want to work with him? Just say so.
           </div>
         </ThreadPrimitive.Empty>
         <ThreadPrimitive.Messages

@@ -12,10 +12,7 @@ export default defineTool({
     company: z.string().optional().describe("Their company or organization."),
     role: z.string().optional().describe("The role or work they want Duyet for."),
     jdUrl: z.string().optional().describe("Link to the job description, if any."),
-    engagement: z
-      .string()
-      .optional()
-      .describe("Full-time, contract, consulting, advisory…"),
+    engagement: z.string().optional().describe("Full-time, contract, consulting, advisory…"),
     timeline: z.string().optional().describe("When they want to start, or a deadline."),
     budget: z.string().optional().describe("Budget or comp range, if shared."),
     contact: z.string().optional().describe("How to reach them (email, handle)."),

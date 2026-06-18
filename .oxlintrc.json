@@ -1,0 +1,5 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "import"],
+  "ignorePatterns": [".eve/", ".next/", ".output/", ".nitro/", "node_modules/"]
+}

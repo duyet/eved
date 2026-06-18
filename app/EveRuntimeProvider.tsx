@@ -24,8 +24,7 @@ function toThreadMessage(message: EveMessage): ThreadMessageLike {
 
 export function EveRuntimeProvider({ children }: { children: ReactNode }) {
   const agent = useEveAgent();
-  const isRunning =
-    agent.status === "submitted" || agent.status === "streaming";
+  const isRunning = agent.status === "submitted" || agent.status === "streaming";
 
   const onNew = useCallback(
     async (message: AppendMessage) => {
@@ -44,9 +43,5 @@ export function EveRuntimeProvider({ children }: { children: ReactNode }) {
     onCancel: () => agent.stop(),
   });
 
-  return (
-    <AssistantRuntimeProvider runtime={runtime}>
-      {children}
-    </AssistantRuntimeProvider>
-  );
+  return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
 }
