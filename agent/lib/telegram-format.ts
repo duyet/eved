@@ -43,10 +43,11 @@ export function markdownToTelegramHtml(markdown: string): string {
 
   text = escapeHtml(text);
 
-  // Links: [label](url)
-  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, label: string, url: string) => {
-    return `<a href="${url}">${label}</a>`;
-  });
+  // Links: [label](url). Stash the rendered <a> so later bold/italic passes can't
+  // corrupt URLs that contain * or _ (very common in paths and query strings).
+  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, label: string, url: string) =>
+    stash(`<a href="${url}">${label}</a>`),
+  );
 
   // Headings (#, ##, …) → bold line.
   text = text.replace(/^#{1,6}\s+(.+)$/gm, "<b>$1</b>");
@@ -55,9 +56,13 @@ export function markdownToTelegramHtml(markdown: string): string {
   text = text.replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>");
   text = text.replace(/__([^_\n]+)__/g, "<b>$1</b>");
 
-  // Italic: *x* or _x_
+  // Italic: *x* or _x_. The underscore form requires whitespace/punctuation
+  // boundaries so intra-word underscores (e.g. some_variable_name) are left alone.
   text = text.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<i>$2</i>");
-  text = text.replace(/(^|[^_])_([^_\n]+)_(?!_)/g, "$1<i>$2</i>");
+  text = text.replace(
+    /(^|\s)_([^_\s\n](?:[^_\n]*?[^_\s\n])?)_(?=$|\s|[.,!?;:])/g,
+    "$1<i>$2</i>",
+  );
 
   // Strikethrough: ~~x~~
   text = text.replace(/~~([^~\n]+)~~/g, "<s>$1</s>");

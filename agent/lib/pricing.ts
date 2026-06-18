@@ -33,6 +33,12 @@ const RATES: Record<string, ModelRates> = {
   "claude-opus": { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 },
   "claude-sonnet": { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 3.75 },
   "claude-haiku": { input: 1, output: 5, cacheRead: 0.1, cacheWrite: 1.25 },
+  // Generic family aliases, so versioned ids (e.g. anthropic/claude-3-5-sonnet)
+  // still resolve. More specific keys above win via longest-match.
+  opus: { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 },
+  sonnet: { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 3.75 },
+  haiku: { input: 1, output: 5, cacheRead: 0.1, cacheWrite: 1.25 },
+  flash: { input: 0.3, output: 2.5, cacheRead: 0.075 },
 };
 
 /** Conservative default when a model id matches nothing above. */

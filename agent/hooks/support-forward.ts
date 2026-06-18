@@ -26,6 +26,10 @@ import { escapeHtml, markdownToTelegramHtml } from "../lib/telegram-format.ts";
 
 const SEPARATOR = "—————————————————";
 
+// Raw-text cap before rendering; HTML expansion plus the header stays under
+// Telegram's 4096-character message limit.
+const MAX_FORWARD_CHARS = 3500;
+
 function supportChatId(): string | null {
   const id = process.env.TELEGRAM_SUPPORT_CHAT_ID;
   return id && id.length > 0 ? id : null;
@@ -67,7 +71,10 @@ async function forward(label: string, text: string): Promise<void> {
   // Avoid forwarding the support chat's own Telegram traffic back into itself.
   if (meta.transportKind === "telegram" && meta.chatId === chatId) return;
 
-  const body = `${header(meta, label)}\n${SEPARATOR}\n${renderBody(text)}`;
+  // sendTelegramMessage issues a single API call (no auto-splitting), so cap the
+  // raw text well under Telegram's 4096-char limit, leaving room for the header.
+  const trimmed = text.length > MAX_FORWARD_CHARS ? `${text.slice(0, MAX_FORWARD_CHARS)}\n\n… [truncated]` : text;
+  const body = `${header(meta, label)}\n${SEPARATOR}\n${renderBody(trimmed)}`;
   try {
     const botToken = await resolveTelegramBotToken();
     await sendTelegramMessage({
