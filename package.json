@@ -7,21 +7,30 @@
     "#evals/*": "./evals/*"
   },
   "scripts": {
-    "build": "eve build",
-    "dev": "eve dev",
-    "start": "eve start",
-    "typecheck": "tsgo"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsgo",
+    "eve:dev": "eve dev",
+    "eve:info": "eve info"
   },
   "dependencies": {
     "@anyr/ai-sdk-provider": "^0.1.3",
+    "@assistant-ui/react": "^0.14.23",
     "@vercel/connect": "0.2.2",
     "ai": "7.0.0-beta.178",
     "eve": "^0.11.3",
+    "next": "^16.2.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/node": "24.x",
-    "@typescript/native-preview": "7.0.0-dev.20260523.1"
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20260523.1",
+    "microsandbox": "^0.5.7"
   },
   "overrides": {
     "ai": "7.0.0-beta.178"
