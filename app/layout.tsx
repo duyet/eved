@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "eved — Duyet's assistant",
   description: "Ask eved about Duyet, his work, and his projects.",
+  icons: { icon: "/logo.svg" },
 };
 
 // Set the theme before paint to avoid a flash of the wrong mode.

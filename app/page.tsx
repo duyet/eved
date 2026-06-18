@@ -1,5 +1,6 @@
 import { FaGithub, FaTelegram } from "react-icons/fa6";
 import { EveRuntimeProvider } from "./EveRuntimeProvider";
+import { Logo } from "./Logo";
 import { Thread } from "./Thread";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -8,9 +9,13 @@ export default function Page() {
     <EveRuntimeProvider>
       <div className="app">
         <header className="header">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="logo" src="https://duyet.net/favicon.ico" alt="duyet.net" />
-          <span className="title">eved</span>
+          <div className="brand">
+            <span className="brand-mark">
+              <Logo size={18} />
+            </span>
+            <span className="title">eved</span>
+            <span className="beta">beta</span>
+          </div>
           <div className="header-actions">
             <a className="by" href="https://duyet.net" target="_blank" rel="noreferrer">
               duyet.net
