@@ -7,6 +7,7 @@ import type {
   ToolCallMessagePartProps,
 } from "@assistant-ui/react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { Streamdown } from "streamdown";
 
 const SUGGESTIONS = [
   { label: "About Duyet", prompt: "Who is Duyet and what does he do?" },
@@ -39,9 +40,21 @@ const pillVariants = {
   show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: EASE_OUT } },
 };
 
-// Plain assistant/user text. Markdown is left as-is (CSS pre-wrap preserves it).
-function Text({ text }: TextMessagePartProps) {
-  return <p className="part-text">{text}</p>;
+// Assistant text, rendered as streaming-aware Markdown via Streamdown.
+function Text({ text, status }: TextMessagePartProps) {
+  const streaming = status?.type === "running";
+  return (
+    <Streamdown
+      className="markdown"
+      // No Tailwind in this project, so disable Streamdown's Tailwind-styled
+      // controls (copy buttons) and link-safety modal; links open directly.
+      controls={false}
+      linkSafety={{ enabled: false }}
+      isAnimating={streaming}
+    >
+      {text}
+    </Streamdown>
+  );
 }
 
 // Streamed reasoning ("thinking"), shown as a dim, collapsible block.
