@@ -9,16 +9,53 @@ import {
 } from "@assistant-ui/react";
 import { useEveAgent, type EveMessage } from "eve/react";
 
-// Map one eve message → an assistant-ui message (text parts only, for a basic chat).
+type ContentPart = Exclude<ThreadMessageLike["content"], string>[number];
+
+// Map an eve message's parts onto assistant-ui content parts. We surface text,
+// reasoning (streamed "thinking"), and tool calls (with their live state) so the
+// UI can render loading, reasoning, and tool activity — not just final text.
+function toContent(message: EveMessage): ContentPart[] {
+  const content: ContentPart[] = [];
+  for (const part of message.parts) {
+    switch (part.type) {
+      case "text":
+        if (part.text) content.push({ type: "text", text: part.text });
+        break;
+      case "reasoning":
+        if (part.text) content.push({ type: "reasoning", text: part.text });
+        break;
+      case "dynamic-tool": {
+        const args =
+          part.input && typeof part.input === "object"
+            ? (part.input as Record<string, unknown>)
+            : undefined;
+        const hasOutput = part.state === "output-available";
+        const isError = part.state === "output-error";
+        content.push({
+          type: "tool-call",
+          toolCallId: part.toolCallId,
+          toolName: part.toolMetadata?.eve?.name ?? part.toolName,
+          args: args ?? {},
+          result: hasOutput ? part.output : isError ? part.errorText : undefined,
+          isError: isError || undefined,
+        });
+        break;
+      }
+      default:
+        break; // step-start and anything else: nothing to render.
+    }
+  }
+  return content;
+}
+
 function toThreadMessage(message: EveMessage): ThreadMessageLike {
-  const text = message.parts
-    .filter((p) => p.type === "text")
-    .map((p) => (p.type === "text" ? p.text : ""))
-    .join("");
+  const content = toContent(message);
+  const streaming = message.metadata?.status === "streaming";
   return {
     id: message.id,
     role: message.role === "user" ? "user" : "assistant",
-    content: [{ type: "text", text }],
+    content: content.length > 0 ? content : [{ type: "text", text: "" }],
+    status: streaming ? { type: "running" } : { type: "complete" },
   };
 }
 
