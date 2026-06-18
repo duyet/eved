@@ -1,11 +1,12 @@
 "use client";
 
-import { ThreadPrimitive, MessagePrimitive, ComposerPrimitive } from "@assistant-ui/react";
+import { ThreadPrimitive, MessagePrimitive, ComposerPrimitive, useThread } from "@assistant-ui/react";
 import type {
   ReasoningMessagePartProps,
   TextMessagePartProps,
   ToolCallMessagePartProps,
 } from "@assistant-ui/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 
 const SUGGESTIONS = [
   { label: "About Duyet", prompt: "Who is Duyet and what does he do?" },
@@ -13,6 +14,20 @@ const SUGGESTIONS = [
   { label: "Send a JD", prompt: "I'd like to share a job description for a role with Duyet." },
   { label: "Hire Duyet", prompt: "I'd like to hire Duyet." },
 ];
+
+// Slow, expressive ease for the composer's glide from center to bottom.
+const GLIDE = { type: "spring", stiffness: 210, damping: 30, mass: 0.9 } as const;
+const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+
+// Stagger the suggestion pills in after the hero settles.
+const listVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.12 } },
+};
+const pillVariants = {
+  hidden: { opacity: 0, y: 8, scale: 0.96 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: EASE_OUT } },
+};
 
 // Plain assistant/user text. Markdown is left as-is (CSS pre-wrap preserves it).
 function Text({ text }: TextMessagePartProps) {
@@ -69,56 +84,90 @@ const MESSAGE_COMPONENTS = {
 };
 
 export function Thread() {
+  // Drives the layout: composer is centered while the thread is empty, then
+  // glides to the bottom once the first message lands.
+  const isEmpty = useThread((t) => t.messages.length === 0);
+
   return (
-    <ThreadPrimitive.Root className="thread-root">
-      <ThreadPrimitive.Viewport className="thread">
-        <ThreadPrimitive.Empty>
-          <div className="welcome">
-            <div className="welcome-title">Chat with eved</div>
-            <div className="welcome-sub">
-              Duyet&apos;s assistant — ask about him, his work, or how to work with him.
+    <MotionConfig reducedMotion="user">
+      <ThreadPrimitive.Root className="thread-root" data-empty={isEmpty}>
+        <ThreadPrimitive.Viewport className="thread">
+          <ThreadPrimitive.Messages
+            components={{
+              UserMessage: () => (
+                <MessagePrimitive.Root className="msg user">
+                  <MessagePrimitive.Parts />
+                </MessagePrimitive.Root>
+              ),
+              AssistantMessage: () => (
+                <MessagePrimitive.Root className="msg assistant">
+                  <MessagePrimitive.Parts components={MESSAGE_COMPONENTS} />
+                </MessagePrimitive.Root>
+              ),
+            }}
+          />
+          <ThreadPrimitive.If running>
+            <div className="thinking" aria-label="Assistant is working">
+              <span className="dot" />
+              <span className="dot" />
+              <span className="dot" />
             </div>
-            <div className="suggestions">
-              {SUGGESTIONS.map((s) => (
-                <ThreadPrimitive.Suggestion
-                  key={s.label}
-                  className="suggestion"
-                  prompt={s.prompt}
-                  method="replace"
-                  autoSend
-                >
-                  {s.label}
-                </ThreadPrimitive.Suggestion>
-              ))}
-            </div>
-          </div>
-        </ThreadPrimitive.Empty>
-        <ThreadPrimitive.Messages
-          components={{
-            UserMessage: () => (
-              <MessagePrimitive.Root className="msg user">
-                <MessagePrimitive.Parts />
-              </MessagePrimitive.Root>
-            ),
-            AssistantMessage: () => (
-              <MessagePrimitive.Root className="msg assistant">
-                <MessagePrimitive.Parts components={MESSAGE_COMPONENTS} />
-              </MessagePrimitive.Root>
-            ),
-          }}
-        />
-        <ThreadPrimitive.If running>
-          <div className="thinking" aria-label="Assistant is working">
-            <span className="dot" />
-            <span className="dot" />
-            <span className="dot" />
-          </div>
-        </ThreadPrimitive.If>
-      </ThreadPrimitive.Viewport>
-      <ComposerPrimitive.Root className="composer">
-        <ComposerPrimitive.Input placeholder="Message eved…" rows={1} autoFocus />
-        <ComposerPrimitive.Send>Send</ComposerPrimitive.Send>
-      </ComposerPrimitive.Root>
-    </ThreadPrimitive.Root>
+          </ThreadPrimitive.If>
+        </ThreadPrimitive.Viewport>
+
+        {/* The dock holds the composer (always) plus the hero + suggestions
+            (only while empty). `layout` makes the whole group animate from
+            screen-center to the bottom via FLIP when the state flips. */}
+        <motion.div layout className="dock" transition={{ layout: GLIDE }}>
+          <AnimatePresence>
+            {isEmpty && (
+              <motion.div
+                key="hero"
+                className="welcome"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT } }}
+                exit={{ opacity: 0, y: -8, transition: { duration: 0.2, ease: "easeIn" } }}
+              >
+                <div className="welcome-title">Chat with eved</div>
+                <div className="welcome-sub">
+                  Duyet&apos;s assistant — ask about him, his work, or how to work with him.
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <ComposerPrimitive.Root className="composer">
+            <ComposerPrimitive.Input placeholder="Message eved…" rows={1} autoFocus />
+            <ComposerPrimitive.Send>Send</ComposerPrimitive.Send>
+          </ComposerPrimitive.Root>
+
+          <AnimatePresence>
+            {isEmpty && (
+              <motion.div
+                key="suggestions"
+                className="suggestions"
+                variants={listVariants}
+                initial="hidden"
+                animate="show"
+                exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              >
+                {SUGGESTIONS.map((s) => (
+                  <motion.div key={s.label} variants={pillVariants}>
+                    <ThreadPrimitive.Suggestion
+                      className="suggestion"
+                      prompt={s.prompt}
+                      method="replace"
+                      autoSend
+                    >
+                      {s.label}
+                    </ThreadPrimitive.Suggestion>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </ThreadPrimitive.Root>
+    </MotionConfig>
   );
 }

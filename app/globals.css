@@ -150,6 +150,16 @@ body {
   min-height: 0;
 }
 
+/* Empty thread: collapse the viewport and pull the dock to vertical center. */
+.thread-root[data-empty="true"] {
+  justify-content: center;
+}
+
+.thread-root[data-empty="true"] .thread {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
 .thread {
   flex: 1;
   overflow-y: auto;
@@ -159,11 +169,24 @@ body {
   gap: 16px;
 }
 
+/* Composer, plus the hero + suggestions while empty. The `layout` prop on
+   this element animates its glide from screen-center to the bottom. */
+.dock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 16px 16px;
+}
+
+.thread-root:not([data-empty="true"]) .dock {
+  border-top: 1px solid var(--border);
+}
+
 .welcome {
-  margin: auto;
   text-align: center;
   max-width: 460px;
-  padding: 24px 0;
+  margin: 0 auto;
+  padding: 8px 0 4px;
 }
 
 .welcome-title {
@@ -208,6 +231,24 @@ body {
 .msg {
   white-space: pre-wrap;
   word-wrap: break-word;
+  animation: msg-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msg {
+    animation: none;
+  }
 }
 
 .msg.user {
@@ -375,8 +416,6 @@ body {
 .composer {
   display: flex;
   gap: 8px;
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--border);
 }
 
 .composer textarea {
