@@ -50,12 +50,17 @@ function toContent(message: EveMessage): ContentPart[] {
 
 function toThreadMessage(message: EveMessage): ThreadMessageLike {
   const content = toContent(message);
+  const isAssistant = message.role !== "user";
   const streaming = message.metadata?.status === "streaming";
   return {
     id: message.id,
-    role: message.role === "user" ? "user" : "assistant",
+    role: isAssistant ? "assistant" : "user",
     content: content.length > 0 ? content : [{ type: "text", text: "" }],
-    status: streaming ? { type: "running" } : { type: "complete" },
+    // assistant-ui throws "status is only supported for assistant messages" if a
+    // status lands on a user/system message, so only attach it to assistant turns.
+    ...(isAssistant
+      ? { status: streaming ? { type: "running" } : { type: "complete" } }
+      : {}),
   };
 }
 
