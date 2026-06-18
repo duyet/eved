@@ -1,11 +1,13 @@
 import { eveChannel } from "eve/channels/eve";
 import { type AuthFn, ForbiddenError, localDev, none, vercelOidc } from "eve/channels/auth";
+import { clerkAuth } from "../lib/clerk-auth.ts";
 import { consume } from "../lib/rate-limit.ts";
 
 // Rate-limit anonymous web traffic per client IP per day, enforced in the auth
 // walk so it runs *before* any model work. Trusted callers (local dev, Vercel
-// OIDC subagents/runtime) match the earlier entries and halt the walk, so the cap
-// only ever applies to anonymous public users that fall through to none().
+// OIDC subagents/runtime, and now verified Clerk users) match earlier entries
+// and halt the walk, so the cap only ever applies to anonymous public users
+// that fall through to none().
 function dailyMessageLimit(): AuthFn<Request> {
   return async (request) => {
     // Only message-send POSTs to /eve/v1/session* carry a user message; the GET
@@ -40,12 +42,15 @@ export default eveChannel({
     localDev(),
     // Lets the eve TUI and Vercel deployments reach the agent.
     vercelOidc(),
+    // Authenticated web chat: a verified Clerk session attaches the real user,
+    // bypassing the anonymous rate limit below. Returns null when there's no
+    // (valid) token so the walk falls through to the daily cap + none().
+    clerkAuth(),
     // Cap anonymous web callers per IP/day before none() lets them in — the web
     // chat runs on Duyet's model credits. See agent/lib/rate-limit.ts.
     dailyMessageLimit(),
     // Public web chat: none() accepts anyone anonymously. Must stay last so the
-    // rate-limit guard above runs first. Swap in real auth (httpBasic / oidc /
-    // jwt) for stronger control.
+    // Clerk + rate-limit guards above run first.
     none(),
   ],
 });

@@ -1,4 +1,5 @@
 import { FaGithub, FaTelegram } from "react-icons/fa6";
+import { AuthButton } from "./AuthButton";
 import { EveRuntimeProvider } from "./EveRuntimeProvider";
 import { Logo } from "./Logo";
 import { Thread } from "./Thread";
@@ -41,6 +42,7 @@ export default function Page() {
               <FaTelegram size={18} />
             </a>
             <ThemeToggle />
+            <AuthButton />
           </div>
         </header>
         <Thread />

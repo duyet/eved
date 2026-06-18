@@ -143,6 +143,40 @@ body {
   background: var(--hover);
 }
 
+/* Header auth: Clerk <UserButton> avatar when signed in, a placeholder avatar
+   icon (opens the sign-in modal) when signed out. */
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-placeholder {
+  border: 1px solid var(--border-strong);
+  background: var(--user-bg);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+
+.avatar-placeholder:hover {
+  background: var(--hover);
+  border-color: var(--muted);
+}
+
+.avatar-placeholder svg {
+  width: 18px;
+  height: 18px;
+}
+
 .thread-root {
   display: flex;
   flex-direction: column;

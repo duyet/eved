@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useCallback } from "react";
+import { type ReactNode, useCallback, useEffect, useRef } from "react";
 import {
   AssistantRuntimeProvider,
   useExternalStoreRuntime,
@@ -8,6 +8,7 @@ import {
   type AppendMessage,
 } from "@assistant-ui/react";
 import { useEveAgent, type EveMessage } from "eve/react";
+import { useAuth, useClerk } from "@clerk/nextjs";
 
 type ContentPart = Exclude<ThreadMessageLike["content"], string>[number];
 
@@ -65,17 +66,45 @@ function toThreadMessage(message: EveMessage): ThreadMessageLike {
 }
 
 export function EveRuntimeProvider({ children }: { children: ReactNode }) {
-  const agent = useEveAgent();
+  const { getToken, isSignedIn } = useAuth();
+  const clerk = useClerk();
+  // Resolved before each eve request; the agent verifies it server-side.
+  const agent = useEveAgent({
+    headers: async () => {
+      const token = await getToken();
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    },
+  });
   const isRunning = agent.status === "submitted" || agent.status === "streaming";
+
+  // A message a signed-out visitor tried to send; replayed once they sign in.
+  const pendingRef = useRef<string | null>(null);
 
   const onNew = useCallback(
     async (message: AppendMessage) => {
       const part = message.content.find((c) => c.type === "text");
       const text = part && part.type === "text" ? part.text : "";
-      if (text.trim()) await agent.send({ message: text });
+      if (!text.trim()) return;
+      // The chat UI is open to everyone, but sending requires sign-in: stash the
+      // message and open the Clerk dialog instead of submitting it anonymously.
+      if (!isSignedIn) {
+        pendingRef.current = text;
+        clerk.openSignIn();
+        return;
+      }
+      await agent.send({ message: text });
     },
-    [agent],
+    [agent, isSignedIn, clerk],
   );
+
+  // Once signed in, send the message the visitor attempted while signed out.
+  useEffect(() => {
+    if (isSignedIn && pendingRef.current) {
+      const text = pendingRef.current;
+      pendingRef.current = null;
+      void agent.send({ message: text });
+    }
+  }, [isSignedIn, agent]);
 
   const runtime = useExternalStoreRuntime({
     isRunning,
