@@ -33,6 +33,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow: hidden;
   background: var(--bg);
   color: var(--fg);
   font-family:
@@ -340,7 +341,20 @@ body {
   padding-left: 1.35em;
 }
 .markdown li {
-  margin: 0.2em 0;
+  margin: 0.15em 0;
+}
+/* Loose lists wrap each item's content in <p>; strip the paragraph margin so
+   bullets sit tight, keeping only a small gap between stacked paragraphs. */
+.markdown li > p {
+  margin: 0;
+}
+.markdown li > p + p {
+  margin-top: 0.4em;
+}
+/* Nested lists shouldn't inherit the block bottom-margin. */
+.markdown li > ul,
+.markdown li > ol {
+  margin: 0.15em 0 0;
 }
 .markdown li::marker {
   color: var(--muted);
