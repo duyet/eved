@@ -185,6 +185,16 @@ export function Thread() {
             </ComposerPrimitive.Send>
           </ComposerPrimitive.Root>
 
+          <div className="composer-footer">
+            <a href="https://anyrouter.dev/?ref=eved" target="_blank" rel="noopener noreferrer">
+              model provider by anyrouter.dev
+            </a>
+            <span aria-hidden="true">|</span>
+            <a href="https://agentstate.app/?ref=eved" target="_blank" rel="noopener noreferrer">
+              conversation state by agentstate.app
+            </a>
+          </div>
+
           <AnimatePresence>
             {isEmpty && (
               <motion.div

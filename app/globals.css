@@ -613,6 +613,25 @@ body {
   gap: 8px;
 }
 
+.composer-footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.composer-footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.composer-footer a:hover {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
 .composer textarea {
   flex: 1;
   resize: none;
